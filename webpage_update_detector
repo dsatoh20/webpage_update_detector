@@ -1,0 +1,60 @@
+"""
+import json
+
+def lambda_handler(event, context):
+    # TODO implement
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Hello from Lambda!')
+    }
+"""
+
+# ウェブページの更新を検知する
+import requests
+from bs4 import BeautifulSoup
+import boto3
+from datetime import datetime
+import random
+
+def detect_updates():
+    url = 'http://dbweb.m.kanazawa-u.ac.jp/stu/lect/listrec.php'
+    res = requests.get(url)
+    
+    s3 = boto3.resource('s3')
+    bucket = 'lecinfopage'
+    key = 'old_elem.txt'
+    
+
+    soup = BeautifulSoup(res.text, 'html.parser')
+    new_elem = str(soup.select("div[id='main']"))
+
+    try:
+        obj = s3.Object(bucket, key)
+        response = obj.get()    
+        old_elem = response['Body'].read().decode('utf-8')
+    except:
+        old_elem = ''
+
+    if new_elem == old_elem:
+        # msg = '\r\n'  + '安心してください。' + '\r\n' + '講義変更はありません。'
+        # return msg
+        return None
+    else:
+        obj = s3.Object(bucket, key)
+        obj.put( Body=new_elem )
+            
+        msg = '\r\n' + '**********' + '\r\n' + '講義変更がありますよ！' + '\r\n' + \
+        '確認してください：' + '\r\n' + url + '\r\n' + '**********' 
+        return msg
+
+def lambda_handler(event, context):
+    # LineNotifyの設定
+    # TOKEN = 'rjpLy8JDnv4L52Vzr0k74PDHSEsfseV6jnPGo4PwIBA'
+    TOKEN = 'OS68L0rjk0lGoCkD3M6IOPYDuCqt4q2TRanOK4gJgOn'
+    api_url = 'https://notify-api.line.me/api/notify'
+    send_contents = detect_updates()
+    
+    TOKEN_dic = {'Authorization': 'Bearer' + ' ' + TOKEN} 
+    send_dic = {'message': send_contents}
+    # 通知を送る
+    requests.post(api_url, headers=TOKEN_dic, data=send_dic)
