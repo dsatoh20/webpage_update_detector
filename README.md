@@ -1,10 +1,4 @@
-# webpage_update_detector
-
-# Name（リポジトリ/プロジェクト/OSSなどの名前）
-
-webpage update detector
-
-Webページの更新を検知し、LINEに通知する。
+# Webpage Update Detector
 
 # Features
 
