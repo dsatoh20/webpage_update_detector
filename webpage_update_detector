@@ -17,7 +17,7 @@ from datetime import datetime
 import random
 
 def detect_updates():
-    url = 'http://dbweb.m.kanazawa-u.ac.jp/stu/lect/listrec.php'
+    url = '' # 任意のWebページのURLを代入
     res = requests.get(url)
     
     s3 = boto3.resource('s3')
