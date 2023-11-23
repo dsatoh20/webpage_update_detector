@@ -1,0 +1,2 @@
+# webpage_update_detector
+Webページの更新を検知し、LINEに通知する
